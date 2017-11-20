@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="ucb.bo.edu.antojitosapp.AboutActivity">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar" />
+
+    <TextView
+        android:id="@+id/title_term"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.04"
+        android:ems="10"
+        android:gravity="center"
+        android:inputType="textPersonName"
+        android:text="@string/title_term"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="18dp"/>
+
+    <TextView
+        android:id="@+id/description_term"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.57"
+        android:ems="10"
+        android:gravity="center"
+        android:inputType="textMultiLine"
+        android:paddingLeft="50dp"
+        android:paddingRight="50dp"
+        android:text="@string/description_term" />
+
+    <Button
+        android:id="@+id/atras"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.04"
+        android:onClick="atras"
+        android:text="@string/Atras"
+        android:background="@color/colorPrimary"/>
+
+</LinearLayout>

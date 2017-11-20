@@ -1,0 +1,49 @@
+<resources>
+    <string name="app_name">AntojitosApp</string>
+    <string name="title_activity_maps">Map</string>
+    <!--menu-->
+    <string name="action_logo">Logo</string>
+    <string name="action_search">Busqueda Personalizada</string>
+    <string name="action_register">Registro</string>
+    <string name="action_about">Acerca de la App</string>
+    <string name="action_term">Terminos y condiciones</string>
+    <string name="action_contact">Contactanos</string>
+    <!--about-->
+    <string name="title_about">Acerca de la Applicacion</string>
+    <string name="description_about">Antojitos App es una aplicacion donde se puede encontrar
+                   comida en donde tu te encuentres</string>
+    <string name="Atras">Atras</string>
+    <!--term-->
+    <string name="title_term">Terminos y Condiciones</string>
+    <string name="description_term">
+        1. la aplicacion cuenta con un registro de restaurantes y puestos de comida,
+        donde el usuario debe registrar la siguiente informacion de manera obligatoria:
+        a) Nombre del restaurante
+        b) Menu con precios reales
+        c) direccion del restaurant.
+        2. si el restaurante cuenta con sucursales cada sucursal debera ser registrada individualmente.
+    </string>
+    <!--contact-->
+    <string name="title_contact">Contactanos</string>
+    <string name="name_contact"></string>
+    <string name="email_contact"></string>
+    <string name="message_contact"></string>
+    <string name="l_name_contact">Nombre:</string>
+    <string name="l_email_contact">Email:</string>
+    <string name="l_message_contact">Mensaje:</string>
+    <string name="Btn_Send">Enviar</string>
+
+    <!--search-->
+    <string name="title_search">Busqueda Avanzada</string>
+    <string name="precio">Seleccione un rango de Precios</string>
+    <string name="categoria">Seleccione Categorias</string>
+    <string name="check_fastfood">Comida Rapida</string>
+    <string name="check_pastas">Pastas</string>
+    <string name="check_cafes">Cafes</string>
+    <string name="check_helados">Heladerias</string>
+    <string name="check_criolla">Comida Criolla</string>
+    <string name="check_empanadas">Empanadas</string>
+    <string name="btn_buscar">Buscar</string>
+
+
+</resources>

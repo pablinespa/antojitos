@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainLayaoutContact"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:context="ucb.bo.edu.antojitosapp.ContactActivity">
+
+    <TextView
+        android:id="@+id/titleContact"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/title_contact"
+        tools:layout_editor_absoluteX="162dp"
+        tools:layout_editor_absoluteY="16dp"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="18dp"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="150dp"
+        android:paddingTop="150dp">
+
+        <LinearLayout
+            android:id="@+id/nameLayaotContact"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            tools:layout_editor_absoluteX="8dp"
+            tools:layout_editor_absoluteY="8dp">
+
+            <TextView
+                android:id="@+id/lNameContact"
+                android:layout_width="105dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:text="@string/l_name_contact"
+                tools:layout_editor_absoluteX="-56dp"
+                tools:layout_editor_absoluteY="33dp" />
+
+            <EditText
+                android:id="@+id/nameContact"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:text="@string/name_contact"
+                tools:layout_editor_absoluteX="30dp"
+                tools:layout_editor_absoluteY="79dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            tools:layout_editor_absoluteX="8dp"
+            tools:layout_editor_absoluteY="8dp">
+
+            <TextView
+                android:id="@+id/lEmailContact"
+                android:layout_width="105dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:text="@string/l_email_contact"
+                tools:layout_editor_absoluteX="0dp"
+                tools:layout_editor_absoluteY="0dp" />
+
+            <EditText
+                android:id="@+id/emailContact"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ems="10"
+                android:inputType="textEmailAddress"
+                android:text="@string/email_contact"
+                tools:layout_editor_absoluteX="30dp"
+                tools:layout_editor_absoluteY="144dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            tools:layout_editor_absoluteX="8dp"
+            tools:layout_editor_absoluteY="8dp">
+
+            <TextView
+                android:id="@+id/ontact"
+                android:layout_width="105dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:text="@string/l_message_contact"
+                tools:layout_editor_absoluteX="0dp"
+                tools:layout_editor_absoluteY="0dp" />
+
+            <EditText
+                android:id="@+id/editText7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:text="@string/message_contact" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/send"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/Btn_Send"
+            android:background="@color/colorAccent" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/atras"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="atras"
+        android:text="@string/Atras"
+        android:background="@color/colorPrimary"/>
+
+</LinearLayout>

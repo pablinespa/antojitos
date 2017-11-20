@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_gravity="left">
+
+    <item
+        android:id="@+id/action_logo"
+        android:icon="@mipmap/ic_action_logo"
+        android:orderInCategory="100"
+        android:title="@string/action_logo"
+        app:showAsAction="ifRoom"
+        />
+
+    <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_action_search"
+        android:orderInCategory="100"
+        android:title="@string/action_search"
+        app:showAsAction="never"
+        />
+    <item
+        android:id="@+id/action_registeraction_register"
+        android:title="@string/action_register"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_about"
+        android:title="@string/action_about"
+        android:orderInCategory="100"
+        app:showAsAction="never"
+        />
+    <item
+        android:id="@+id/action_terms"
+        android:title="@string/action_term"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_contact"
+        android:title="@string/action_contact"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+</menu>
