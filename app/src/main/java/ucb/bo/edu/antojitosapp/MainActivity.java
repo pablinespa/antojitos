@@ -9,16 +9,20 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -31,6 +35,8 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
+
 import io.realm.Realm;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -42,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements
     private Toolbar mToolBar;
     private Realm antojitoRealm;
     private GoogleMap map;
+    private RecyclerView recyclerView;
 
     final String TAG = "GPS";
     final String gpsLocationProvider = LocationManager.GPS_PROVIDER;
@@ -57,6 +64,19 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ArrayList<MenuRestaurante> lista = new ArrayList<>();
+        lista.add(new MenuRestaurante("Pique", "100 bs"));
+        lista.add(new MenuRestaurante("Lomito", "50 bs"));
+        lista.add(new MenuRestaurante("Sillpancho", "25 bs"));
+        lista.add(new MenuRestaurante("Chicharron", "60 bs"));
+
+        MenuListAdapter MenuListAdapter = new MenuListAdapter(lista);
+        this.recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        this.recyclerView.setAdapter(MenuListAdapter);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        this.recyclerView.setLayoutManager(linearLayoutManager);
 
         this.antojitoRealm = Realm.getDefaultInstance();
 
@@ -298,5 +318,11 @@ public class MainActivity extends AppCompatActivity implements
         Log.e("latitude", "inside latitude--" + latitude);
 
     }
+
+    //llamada
+    /*public void  call(new View OnClickListener()){
+        Intent intent = new Intent(Intent.ACTION_CALL);
+        intent.setData(Uri.parse("tel:666-666-666"));
+        startActivity(intent);*/
 
 }
