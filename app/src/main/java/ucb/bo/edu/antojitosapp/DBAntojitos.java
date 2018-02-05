@@ -23,5 +23,10 @@ public class DBAntojitos extends Application{
         Realm.setDefaultConfiguration(configuration);
     }
 
+    /**
+     * Created by ASUS on 28/1/2018.
+     */
 
+    public static final class GPSTracker {
+    }
 }

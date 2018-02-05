@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">AntojitosApp</string>
     <string name="title_activity_maps">Map</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
     <!--menu-->
     <string name="action_logo">Logo</string>
     <string name="action_search">Busqueda Personalizada</string>

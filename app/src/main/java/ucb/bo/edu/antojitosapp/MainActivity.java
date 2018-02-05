@@ -1,328 +1,388 @@
 package ucb.bo.edu.antojitosapp;
 
 import android.Manifest;
-import android.app.AlertDialog;
-import android.app.Service;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
-import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Build;
-import android.provider.Settings;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.gson.Gson;
 
-import java.util.ArrayList;
-
-import io.realm.Realm;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import static ucb.bo.edu.antojitosapp.R.id.map;
 
 public class MainActivity extends AppCompatActivity implements
-        OnMapReadyCallback {
-
-    private Toolbar mToolBar;
-    private Realm antojitoRealm;
-    private GoogleMap map;
-    private RecyclerView recyclerView;
+        OnMapReadyCallback,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener,
+        NavigationView.OnNavigationItemSelectedListener {
 
     final String TAG = "GPS";
-    final String gpsLocationProvider = LocationManager.GPS_PROVIDER;
-    final String networkLocationProvider = LocationManager.NETWORK_PROVIDER;
-    String wantPermission = Manifest.permission.ACCESS_FINE_LOCATION;
 
-    public double latitude;
-    public double longitude;
+    private GoogleMap mMap;
+    GoogleApiClient mGoogleApiClient;
+    Location mLastLocation;
+    Marker mCurrLocationMarker;
+    LocationRequest mLocationRequest;
 
-    Intent restaurant;
+    /**** start variable detail restaurant *****/
+    Intent detailRestaurant;
+    /**** end variable detail restaurant *****/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ArrayList<MenuRestaurante> lista = new ArrayList<>();
-        lista.add(new MenuRestaurante("Pique", "100 bs"));
-        lista.add(new MenuRestaurante("Lomito", "50 bs"));
-        lista.add(new MenuRestaurante("Sillpancho", "25 bs"));
-        lista.add(new MenuRestaurante("Chicharron", "60 bs"));
+        Toolbar tb = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(tb);
+        //tb.setSubtitle("Your Location");
 
-        MenuListAdapter MenuListAdapter = new MenuListAdapter(lista);
-        this.recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        this.recyclerView.setAdapter(MenuListAdapter);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        this.recyclerView.setLayoutManager(linearLayoutManager);
-
-        this.antojitoRealm = Realm.getDefaultInstance();
-
-        this.mToolBar = (Toolbar) findViewById(R.id.toolbar);
-
-        if (this.mToolBar != null) {
-            setSupportActionBar(this.mToolBar);
-        }
-
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-
-        restaurant = new Intent(this, RestaurantActivity.class);
-
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        Log.d(TAG, "locationManager " + locationManager);
-        LocationManager locationManager_ = (LocationManager) getSystemService(Service.LOCATION_SERVICE);
-        Log.d(TAG, "locationManager_ " + locationManager_);
-
-        if (checkPermission(wantPermission)) {
-            Location lastKnownLocationGps = locationManager.getLastKnownLocation(gpsLocationProvider);
-            Location lastKnownLocationNetwork = locationManager.getLastKnownLocation(networkLocationProvider);
-
-            if (lastKnownLocationGps == null) {
-                Log.d(TAG, "NO GPS");
-
-                if (lastKnownLocationNetwork == null) {
-                    Log.d(TAG, "NO Network");
-                    Log.d(TAG, "NO Location!");
-
-                    showSettingsAlert();
-
-                } else {
-                    Log.d(TAG, "Network " + lastKnownLocationNetwork.toString());
-                    Log.d(TAG, "Location (Network)" + lastKnownLocationNetwork.getLatitude() + ", " + lastKnownLocationNetwork.getLongitude());
-                    latitude = lastKnownLocationNetwork.getLatitude();
-                    longitude = lastKnownLocationNetwork.getLongitude();
-
-
-                }
-            } else {
-                Log.d(TAG, "GPS " + lastKnownLocationGps.toString());
-
-                if (lastKnownLocationNetwork == null) {
-                    Log.d(TAG, "NO Network");
-                    Log.d(TAG, "Location (GPS) " + lastKnownLocationGps.getLatitude() + ", " + lastKnownLocationGps.getLongitude());
-                    Log.d(TAG, "Time (GPS) " + lastKnownLocationGps.getTime());
-                    Log.d(TAG, "Accuracy (GPS) " + lastKnownLocationGps.getAccuracy());
-                } else {
-                    Log.d(TAG, "Network " + lastKnownLocationNetwork.toString());
-
-                    //Both Location provider have last location decide location base on accuracy
-                    if (lastKnownLocationGps.getAccuracy() <= lastKnownLocationNetwork.getAccuracy()) {
-                        Log.d(TAG, "Location (GPS) " + lastKnownLocationGps.getLatitude() + ", " + lastKnownLocationGps.getLongitude());
-                        latitude = lastKnownLocationGps.getLatitude();
-                        longitude = lastKnownLocationGps.getLongitude();
-                    } else {
-                        Log.d(TAG, "Location (Network) " + lastKnownLocationNetwork.getLatitude() + ", " + lastKnownLocationNetwork.getLongitude());
-                        latitude = lastKnownLocationNetwork.getLatitude();
-                        longitude = lastKnownLocationNetwork.getLongitude();
-                    }
-
-                }
-            }
-        }
-
-        /*String isbn = "0596154615";
-        RestApiAdapter restApiAdapter = new RestApiAdapter();
-        EndPointApi endPointApi = restApiAdapter.connexionApi(restApiAdapter.buildGsonDeserializedBook(isbn));
-        Call<BookResponse> bookResponseCall = endPointApi.getList("data", "json","ISBN:"+isbn);
-        bookResponseCall.enqueue(new Callback<BookResponse>() {
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onResponse(Call<BookResponse> call, Response<BookResponse> response) {
-                BookResponse book = response.body();
-                System.out.println( "BookResponse" );
-                System.out.println( new Gson().toJson(book));
-            }
-
-            @Override
-            public void onFailure(Call<BookResponse> call, Throwable t) {
-                System.out.println("Ocurrio un error" + t.getLocalizedMessage());
-            }
-        });*/
-
-        String restaurant_id = "2";
-        RestApiAdapter restApiAdapter = new RestApiAdapter();
-        EndPointApi endPointApi = restApiAdapter.connexionApi(restApiAdapter.buildGsonDeserializedRestaurant(restaurant_id));
-        Call<RestaurantResponse> restaurantResponseCall = endPointApi.getList(restaurant_id);
-
-        restaurantResponseCall.enqueue(new Callback<RestaurantResponse>() {
-            @Override
-            public void onResponse(Call<RestaurantResponse> call, Response<RestaurantResponse> response) {
-                RestaurantResponse restaurant = response.body();
-                System.out.println( "RestaurantResponse" );
-                System.out.println( new Gson().toJson(restaurant));
-            }
-
-            @Override
-            public void onFailure(Call<RestaurantResponse> call, Throwable t) {
-                System.out.println( "Error fdsfsdsd" );
-                System.out.println("Ocurrio un error" + t.getLocalizedMessage());
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
             }
         });
 
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, tb, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        Log.d(TAG, "onCreate " );
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            checkLocationPermission();
+        }
+
+        MapFragment mapFragment = (MapFragment) getFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
+        /****** start Intent Restaurant Detail ******/
+        detailRestaurant = new Intent(this, DetailActivity.class);
+        /****** end Intent Restaurant Detail ******/
+
     }
 
-    private boolean checkPermission(String permission) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            int result = ContextCompat.checkSelfPermission(MainActivity.this, permission);
-            if (result == PackageManager.PERMISSION_GRANTED) {
-                return true;
-            } else {
-                return false;
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+
+        Log.d(TAG, "onMapReady " + googleMap);
+
+        /*mMap = googleMap;
+
+        LatLng pos = new LatLng(-17.3919, -66.1560151);
+        mMap.addMarker(new MarkerOptions()
+                .position(pos)
+                .title("Titulo")
+                .snippet("Hola"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos,15));*/
+
+
+        /****** start method current location *****/
+
+        mMap = googleMap;
+        mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+
+        //Initialize Google Play Services
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                buildGoogleApiClient();
+                mMap.setMyLocationEnabled(true);
             }
+        }
+        else {
+            buildGoogleApiClient();
+            mMap.setMyLocationEnabled(true);
+        }
+
+        /****** end method current location *****/
+
+    }
+    /** start method current location ***/
+
+    protected synchronized void buildGoogleApiClient() {
+
+        Log.d(TAG, "buildGoogleApiClient ");
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(1000);
+        mLocationRequest.setFastestInterval(1000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        }
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+        mLastLocation = location;
+        if (mCurrLocationMarker != null) {
+            mCurrLocationMarker.remove();
+        }
+
+        //Place current location marker
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(latLng);
+        markerOptions.title("Current Position");
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+        mCurrLocationMarker = mMap.addMarker(markerOptions);
+        Log.d(TAG, "onLocationChanged " + latLng);
+        //move map camera
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(16));
+
+
+        /**** start array  markers  ******/
+        String answer = "-17.3723908,-66.1596521,Panchita,#-17.3849664,-66.1585516,Comida Criolla,#-17.3943067,-66.159021,Empanadas fritas,#";
+        // note that line breaks disappeared after parsing it to string
+        String[] parts = answer.split("#");
+
+
+        for (String point : parts) {
+            Log.d(TAG, "onLocationChanged " + point);
+            String[] pointData = point.split(",");
+            Float lat= Float.parseFloat(pointData[0]);
+            Float lng= Float.parseFloat(pointData[1]);
+            String name = pointData[2];
+            /// check if fit your actual map, remember you need everything required here loaded and declared before calling.
+            mMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(lat, lng))
+                    .title(name));
+
+            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
+            {
+                @Override
+                public boolean onMarkerClick(Marker arg0) {
+                    Log.d(TAG, "onMarkerClick ");
+                    //if(arg0.getTitle().equals("Titulo")) // if marker source is clicked
+                    //{
+
+                    Toast.makeText(MainActivity.this, arg0.getTitle(), Toast.LENGTH_SHORT).show();// display toast
+                    detailRestaurant = new Intent(MainActivity.this, DetailActivity.class);
+                    startActivity(detailRestaurant);
+
+                    //}
+                    return true;
+                }
+
+            });
+
+        }
+        /**** end array  markers  ******/
+
+        //stop location updates
+        if (mGoogleApiClient != null) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        }
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
+
+    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    public boolean checkLocationPermission(){
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Asking user if explanation is needed
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+                //Prompt the user once explanation has been shown
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+
+
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+            }
+            return false;
         } else {
             return true;
         }
     }
 
-    public void showSettingsAlert() {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-        alertDialog.setTitle("GPS is not Enabled!");
-        alertDialog.setMessage("Do you want to turn on GPS?");
-        alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                startActivity(intent);
-            }
-        });
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-        alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
+                    // permission was granted. Do the
+                    // contacts-related task you need to do.
+                    if (ContextCompat.checkSelfPermission(this,
+                            Manifest.permission.ACCESS_FINE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED) {
 
-        alertDialog.show();
+                        if (mGoogleApiClient == null) {
+                            buildGoogleApiClient();
+                        }
+                        mMap.setMyLocationEnabled(true);
+                    }
+
+                } else {
+
+                    // Permission denied, Disable the functionality that depends on this permission.
+                    Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other permissions this app might request.
+            // You can add here other case statements according to your requirement.
+        }
+    }
+
+    /*** end method current location ****/
+
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.action_registeraction_register) {
-            Toast.makeText(this, "Por favor contactese con nosotros para registrar su Restaurant. Gracias", Toast.LENGTH_LONG).show();
+        //noinspection SimplifiableIfStatement
+        /*if (id == R.id.action_settings) {
             return true;
-        }
+        }*/
 
-        if (id == R.id.action_about) {
-            Intent i = new Intent(this, AboutActivity.class);
-            startActivity(i);
-        }
-        if (id == R.id.action_terms) {
-            Intent i = new Intent(this, TermActivity.class);
-            startActivity(i);
-        }
-        if (id == R.id.action_contact) {
-            Intent i = new Intent(this, ContactActivity.class);
-            startActivity(i);
-        }
-        if (id == R.id.action_search) {
-            Intent i = new Intent(this, SearchActivity.class);
-            startActivity(i);
-        }
         return super.onOptionsItemSelected(item);
     }
 
-
+    @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        map = googleMap;
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
 
-        LatLng pos = new LatLng(latitude, longitude);
+        if (id == R.id.nav_search) {
 
-        // Add a marker in Sydney and move the camera
+            Intent i = new Intent(this, Activity_search.class);
+            startActivity(i);
 
-        map.moveCamera(CameraUpdateFactory.newLatLng(pos));
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            Log.d(TAG, "POS (GPS) " + pos);
-            return;
+        } else if (id == R.id.nav_Restaurant) {
+            Toast.makeText(this, "no existen restaurant registrados", Toast.LENGTH_LONG).show();
+            return true;
+
+        } else if (id == R.id.nav_about) {
+            Intent i = new Intent(this, AboutActivity.class);
+            startActivity(i);
+
+        } else if (id == R.id.nav_term) {
+            Intent i = new Intent(this, TermActivity.class);
+            startActivity(i);
+        } else if (id == R.id.nav_contact) {
+            Intent i = new Intent(this, ContactActivity.class);
+            startActivity(i);
+
         }
-        map.setMyLocationEnabled(true);
-        map.getUiSettings().setMyLocationButtonEnabled(true);
 
-        map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+//        else if (id == R.id.nav_share) {
+//
+//        } else if (id == R.id.nav_send) {
+//
+//        }
 
-        MarkerOptions markerend = new MarkerOptions()
-                .position(pos)
-                .title("Titulo")
-                .snippet("Subtitulo");
-        // Changing marker icon
-        markerend.icon(BitmapDescriptorFactory
-                .defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
 
-        // adding marker
-        map.addMarker(markerend);
-
-        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
-        {
-
-            @Override
-            public boolean onMarkerClick(Marker arg0) {
-                if(arg0.getTitle().equals("Titulo")) // if marker source is clicked
-                {
-                    Toast.makeText(MainActivity.this, arg0.getTitle(), Toast.LENGTH_SHORT).show();// display toast
-                    restaurant = new Intent(MainActivity.this, RestaurantActivity.class);
-                    startActivity(restaurant);
-                }
-
-                return true;
-            }
-
-        });
-
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
-
-    public void onLocationChanged(Location location) {
-
-        double latitude = location.getLatitude();
-        double longitude = location.getLongitude();
-
-        Log.e("latitude", "latitude--" + latitude);
-        Log.e("latitude", "inside latitude--" + latitude);
-
-    }
-
-    //llamada
-    /*public void  call(new View OnClickListener()){
-        Intent intent = new Intent(Intent.ACTION_CALL);
-        intent.setData(Uri.parse("tel:666-666-666"));
-        startActivity(intent);*/
-
 }

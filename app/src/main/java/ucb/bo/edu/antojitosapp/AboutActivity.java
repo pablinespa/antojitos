@@ -21,15 +21,15 @@ import retrofit2.Response;
 
 public class AboutActivity extends AppCompatActivity {
 
-    private TextView description;
-    private Realm antojitoRealm;
+    //private TextView description;
+    //private Realm antojitoRealm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
 
-        this.description = (TextView) findViewById(R.id.description_about);
+        /*this.description = (TextView) findViewById(R.id.description_about);
 
         this.antojitoRealm = Realm.getDefaultInstance();
 
@@ -83,44 +83,11 @@ public class AboutActivity extends AppCompatActivity {
                 .findAll()
                 .last(null);
 
-        this.description.setText(about.getDescription());
+        this.description.setText(about.getDescription());*/
     }
 
     public void atras(View v) {
         finish();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_registeraction_register) {
-            Toast.makeText(this, "Por favor contactese con nosotros para registrar su Restaurant. Gracias", Toast.LENGTH_LONG).show();
-            return true;
-        }
-
-        if (id == R.id.action_about) {
-            Intent i = new Intent(this, AboutActivity.class);
-            startActivity(i);
-        }
-        if (id == R.id.action_terms) {
-            Intent i = new Intent(this, TermActivity.class);
-            startActivity(i);
-        }
-        if (id == R.id.action_contact) {
-            Intent i = new Intent(this, ContactActivity.class);
-            startActivity(i);
-        }
-        if (id == R.id.action_search) {
-            Intent i = new Intent(this, SearchActivity.class);
-            startActivity(i);
-        }
-        return super.onOptionsItemSelected(item);
-    }
 }
