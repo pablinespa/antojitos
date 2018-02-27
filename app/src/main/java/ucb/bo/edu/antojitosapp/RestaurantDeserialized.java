@@ -28,7 +28,7 @@ public class RestaurantDeserialized implements JsonDeserializer<RestaurantRespon
         System.out.println("deserialize");
         System.out.println(new Gson().toJson(json.getAsJsonObject()));
 
-        RestaurantResponse resp = new RestaurantResponse(this.restaurant_id);
+        RestaurantResponse resp = new RestaurantResponse("1","3","","","","",2.4);
         return resp;
     }
 }

@@ -3,6 +3,8 @@ package ucb.bo.edu.antojitosapp;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Build;
@@ -22,6 +24,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,6 +43,22 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 import static ucb.bo.edu.antojitosapp.R.id.map;
 
@@ -195,14 +215,115 @@ public class MainActivity extends AppCompatActivity implements
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(16));
 
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(ConstantsRestApi.URL_ANTOJITOS)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        EndPointApi service = retrofit.create(EndPointApi.class);
+
+        Call<List<RestaurantResponse>> call = service.getRest(location.getLatitude(),location.getLongitude());
+
+        call.enqueue(new Callback<List<RestaurantResponse>>() {
+            @Override
+            public void onResponse(Call<List<RestaurantResponse>> call, Response<List<RestaurantResponse>> response) {
+                Log.e(" mainAction", "  response "+ response.body().toString());
+                Log.e(" mainAction", "  response raw "+ response.raw());
+                Log.e(" mainAction", "  response raw "+ new Gson().toJson(response.body()));
+
+                System.out.println(" jsonArray");
+
+                List<RestaurantResponse> res = response.body();
+
+                System.out.println(res);
+                System.out.println(res.size());
+
+                for (RestaurantResponse object: res) {
+                    System.out.println(" for 1");
+                    System.out.println(object.getAddress());
+                    System.out.println( Double.valueOf(object.getLatitude()).doubleValue() );
+                    System.out.println(" for 1");
+
+                    mMap.addMarker(new MarkerOptions()
+                            .position(new LatLng(Double.valueOf(object.getLatitude()).doubleValue(), Double.valueOf(object.getLongitude()).doubleValue()))
+                            .title(object.getName())
+                            .snippet(object.getAddress()));
+
+
+                    // Setting a custom info window adapter for the google map
+                    mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+
+                        // Use default InfoWindow frame
+                        @Override
+                        public View getInfoWindow(Marker arg0) {
+                            return null;
+                        }
+
+                        // Defines the contents of the InfoWindow
+                        @Override
+                        public View getInfoContents(Marker arg0) {
+                            View v = null;
+                            try {
+
+                                // Getting view from the layout file info_window_layout
+                                v = getLayoutInflater().inflate(R.layout.custom_infowindow, null);
+
+                                // Getting reference to the TextView to set latitude
+                                TextView nameTxt = (TextView) v.findViewById(R.id.nameTxt);
+                                nameTxt.setText(arg0.getTitle());
+                                TextView addressTxt = (TextView) v.findViewById(R.id.addressTxt);
+                                addressTxt.setText(arg0.getSnippet());
+
+                                /*ImageView imgRest = (ImageView) v.findViewById(R.id.clientPic);
+                                imgRest.set*/
+
+                            } catch (Exception ev) {
+                                System.out.print(ev.getMessage());
+                            }
+
+                            return v;
+                        }
+                    });
+
+
+                    /*mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
+                    {
+                        @Override
+                        public boolean onMarkerClick(Marker arg0) {
+                            Log.d(TAG, "onMarkerClick ");
+                            //if(arg0.getTitle().equals("Titulo")) // if marker source is clicked
+                            //{
+
+                            Toast.makeText(MainActivity.this, arg0.getTitle(), Toast.LENGTH_SHORT).show();// display toast
+                            detailRestaurant = new Intent(MainActivity.this, DetailActivity.class);
+                            startActivity(detailRestaurant);
+
+                            //}
+                            return true;
+                        }
+
+                    });*/
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<RestaurantResponse>> call, Throwable t) {
+                Log.e("MainActivity ", "  error "+ t.toString());
+
+            }
+        });
+
 
         /**** start array  markers  ******/
-        String answer = "-17.3723908,-66.1596521,Panchita,#-17.3849664,-66.1585516,Comida Criolla,#-17.3943067,-66.159021,Empanadas fritas,#";
+        String answer = "-17.3723908,-66.1596521,Panchita," +
+                        "#-17.3849664,-66.1585516,Comida Criolla," +
+                        "#-17.3943067,-66.159021,Empanadas fritas,#";
         // note that line breaks disappeared after parsing it to string
         String[] parts = answer.split("#");
 
 
-        for (String point : parts) {
+        /*for (String point : parts) {
             Log.d(TAG, "onLocationChanged " + point);
             String[] pointData = point.split(",");
             Float lat= Float.parseFloat(pointData[0]);
@@ -231,7 +352,7 @@ public class MainActivity extends AppCompatActivity implements
 
             });
 
-        }
+        }*/
         /**** end array  markers  ******/
 
         //stop location updates
@@ -357,11 +478,14 @@ public class MainActivity extends AppCompatActivity implements
             Intent i = new Intent(this, Activity_search.class);
             startActivity(i);
 
-        } else if (id == R.id.nav_Restaurant) {
-            Toast.makeText(this, "no existen restaurant registrados", Toast.LENGTH_LONG).show();
-            return true;
+        }/* else if (id == R.id.nav_Restaurant) {
+            //Toast.makeText(this, "no existen restaurant registrados", Toast.LENGTH_LONG).show();
+            //return true;
 
-        } else if (id == R.id.nav_about) {
+            Intent i = new Intent(this, ListActivity.class);
+            startActivity(i);
+
+        }*/ else if (id == R.id.nav_about) {
             Intent i = new Intent(this, AboutActivity.class);
             startActivity(i);
 

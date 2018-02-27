@@ -3,6 +3,7 @@ package ucb.bo.edu.antojitosapp;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,12 +17,16 @@ import java.util.UUID;
 import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
+
 import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class AboutActivity extends AppCompatActivity {
 
-    //private TextView description;
+    private TextView description;
     //private Realm antojitoRealm;
 
     @Override
@@ -84,10 +89,42 @@ public class AboutActivity extends AppCompatActivity {
                 .last(null);
 
         this.description.setText(about.getDescription());*/
+
+        this.description = (TextView) findViewById(R.id.description_about);
+
+        getRetrofitObject();
+
     }
 
     public void atras(View v) {
         finish();
+    }
+
+    public void getRetrofitObject(){
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(ConstantsRestApi.URL_ANTOJITOS)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        EndPointApi service = retrofit.create(EndPointApi.class);
+
+        Call<About> call = service.getAboutJsonObjectData();
+
+        call.enqueue(new Callback<About>() {
+            @Override
+            public void onResponse(Call<About> call, Response<About> response) {
+                Log.e(" mainAction", "  response "+ response.body().toString());
+                Log.e(" mainAction", "  description - "+ response.body().getDescription().toString());
+
+                description.setText(response.body().getDescription().toString());
+            }
+
+            @Override
+            public void onFailure(Call<About> call, Throwable t) {
+                Log.e("MainActivity ", "  error "+ t.toString());
+
+            }
+        });
     }
 
 }

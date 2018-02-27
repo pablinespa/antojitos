@@ -67,7 +67,8 @@
         <activity android:name=".ContactActivity" />
         <activity android:name=".RestaurantActivity" />
         <activity android:name=".TermActivity" />
-        <activity android:name=".Activity_search"></activity>
+        <activity android:name=".Activity_search"/>
+        <activity android:name=".ListActivity"></activity>
     </application>
 
 </manifest>

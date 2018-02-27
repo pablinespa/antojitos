@@ -3,6 +3,7 @@ package ucb.bo.edu.antojitosapp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,10 +20,12 @@ import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TermActivity extends AppCompatActivity {
 
-    //private TextView description;
+    private TextView description;
     //private Realm antojitoRealm;
 
     @Override
@@ -86,10 +89,41 @@ public class TermActivity extends AppCompatActivity {
 
         this.description.setText(term.getDescription());*/
 
+        this.description = (TextView) findViewById(R.id.description_term);
+
+        getRetrofitObject();
+
     }
 
     public void atras(View v) {
         finish();
+    }
+
+    public void getRetrofitObject(){
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(ConstantsRestApi.URL_ANTOJITOS)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        EndPointApi service = retrofit.create(EndPointApi.class);
+
+        Call<Term> call = service.getTermJsonObjectData();
+
+        call.enqueue(new Callback<Term>() {
+            @Override
+            public void onResponse(Call<Term> call, Response<Term> response) {
+                Log.e(" mainAction", "  response "+ response.body().toString());
+                Log.e(" mainAction", "  description - "+ response.body().getDescription().toString());
+
+                description.setText(response.body().getDescription().toString());
+            }
+
+            @Override
+            public void onFailure(Call<Term> call, Throwable t) {
+                Log.e("MainActivity ", "  error "+ t.toString());
+
+            }
+        });
     }
 
 }
